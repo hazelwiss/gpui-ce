@@ -82,6 +82,7 @@ impl RenderTarget {
                 desired_maximum_frame_latency: 2,
                 alpha_mode,
                 view_formats: Vec::new(),
+                color_space: wgpu::SurfaceColorSpace::Auto,
             },
             transparent_alpha_mode,
             opaque_alpha_mode,
