@@ -5225,7 +5225,7 @@ impl Window {
                 frame_index,
             };
 
-            self.sprite_atlas.remove(&params.clone().into());
+            self.sprite_atlas.remove(&params.into());
         }
 
         Ok(())
@@ -7041,7 +7041,7 @@ impl Window {
     pub fn on_window_should_close(
         &self,
         cx: &App,
-        f: impl Fn(&mut Window, &mut App) -> bool + 'static,
+        mut f: impl FnMut(&mut Window, &mut App) -> bool + 'static,
     ) {
         let mut cx = self.to_async(cx);
         self.platform_window.on_should_close(Box::new(move || {
