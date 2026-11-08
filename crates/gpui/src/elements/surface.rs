@@ -1,8 +1,9 @@
 #[cfg(target_os = "windows")]
 use crate::WindowsScreenCaptureFrame;
 use crate::{
-    App, Bounds, DevicePixels, Element, ElementId, GlobalElementId, InspectorElementId,
-    IntoElement, LayoutId, ObjectFit, Pixels, Size, Style, StyleRefinement, Styled, Window,
+    App, Bounds, DefiniteLength, DevicePixels, Element, ElementId, GlobalElementId,
+    InspectorElementId, IntoElement, LayoutId, Length, ObjectFit, Pixels, Size, Style,
+    StyleRefinement, Styled, Window, px,
 };
 #[cfg(target_os = "macos")]
 use core_video::pixel_buffer::CVPixelBuffer;
@@ -150,6 +151,37 @@ impl Element for Surface {
     ) -> (LayoutId, Self::RequestLayoutState) {
         let mut style = Style::default();
         style.refine(&self.style);
+
+        let size = match self.source {
+            SurfaceSource::Texture { size, .. } => size,
+            SurfaceSource::Unsupported(size) => size,
+        }
+        .map(|e| e.0 as f32);
+
+        if let Length::Auto = style.size.width {
+            style.size.width = match style.size.height {
+                Length::Definite(DefiniteLength::Absolute(abs_length)) => {
+                    let height_px = abs_length.to_pixels(window.rem_size());
+                    Length::Definite(px(size.width * height_px.0 / size.height).into())
+                }
+                _ => Length::Definite(DefiniteLength::Absolute(crate::AbsoluteLength::Pixels(
+                    Pixels(size.width),
+                ))),
+            };
+        }
+
+        if let Length::Auto = style.size.height {
+            style.size.height = match style.size.width {
+                Length::Definite(DefiniteLength::Absolute(abs_length)) => {
+                    let width_px = abs_length.to_pixels(window.rem_size());
+                    Length::Definite(px(size.height * width_px.0 / size.width).into())
+                }
+                _ => Length::Definite(DefiniteLength::Absolute(crate::AbsoluteLength::Pixels(
+                    Pixels(size.height),
+                ))),
+            };
+        }
+
         let layout_id = window.request_layout(style, [], cx);
         (layout_id, ())
     }
