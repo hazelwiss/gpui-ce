@@ -14,8 +14,6 @@ use std::{
     },
 };
 
-pub use image::{ImageBuffer, Rgba};
-
 /// One way to store a set of assets for gpui to access.
 /// Can be provided to [`AssetRegistry`] to load asset binaries on-demand.
 /// Alternatively, assets can be provided pre-loaded to the registry while still using this api (though there are newer apis to do so).
