@@ -2346,6 +2346,12 @@ impl Window {
         }
     }
 
+    /// Forcibly mark the window as dirty, scheduling it to be redrawn on the next frame.
+    pub fn force_refresh(&mut self) {
+        self.refreshing = true;
+        self.invalidator.set_dirty(true);
+    }
+
     /// Close this window.
     pub fn remove_window(&mut self) {
         self.removed = true;
